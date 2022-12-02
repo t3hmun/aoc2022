@@ -1,5 +1,5 @@
 fn main() {
-    let windows_data = include_str!("./day1data.txt");
+    let windows_data: &str = include_str!("./day1data.txt");
     let data = windows_data.replace("\r", "");
     let elves = data.split("\n\n");
 
@@ -8,8 +8,8 @@ fn main() {
         .collect();
     parsed_elves.sort_by(|a, b| b.cmp(a));
     let ans_one = parsed_elves.iter().max().expect("no data?");
-    let ans_two = parsed_elves.iter().take(3).sum();
+    //let ans_two = parsed_elves.iter().take(3).sum();
 
     println!("One: {ans_one}");
-    println!("Two: {ans_two}");
+    //println!("Two: {ans_two}");
 }
