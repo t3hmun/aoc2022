@@ -5,7 +5,7 @@
     - Not magical like they are in C# and JS.
     - Not ASCII char array like in C
     - UTF-8 byte array, len might be different to number of letters
-    - Different types for compiled literals (str) and runtime growable strings (Strings)
+    - Different types for fix len strings (str) and growable strings (Strings)
 */
 
 fn main() {
@@ -16,8 +16,29 @@ fn main() {
 
 /// This is my instinctive way to do it but understanding types returned by each function isn't obvious.
 fn map_reduce(data: &String) {
-    let ans_a = "todo";
-    let ans_b = "todo";
+    let elves: std::str::Split<&str> = data.split("\n\n");
+    //for elf in elves { /* The iterated elf is &str here */ }
+
+    //let elves = elves.map(|elf| elf.parse::<u32>());
+    //for elf in elves { /* The iterated elf is Result<u32, ParseIntError> here */ }
+
+    // The type of below is "impl Iterator<Item = u32>", seems to be an inference only type?
+    //let elves = elves.map(|elf| elf.parse::<u32>().expect("Number parsing map fail."));
+    //for elf in elves { /* The iterated elf is u32 here */ }
+
+    // expect is just unwrap without the message, only use when failure should explode the program
+
+    let elves_totalled = elves.map(|elf| {
+        elf.lines()
+            .map(|line| line.parse::<u32>().unwrap())
+            .sum::<u32>()
+    });
+
+    let mut elves_totalled: Vec<u32> = elves_totalled.collect();
+    elves_totalled.sort_by(|a, b| b.cmp(a));
+
+    let ans_a = *elves_totalled.first().unwrap();
+    let ans_b = elves_totalled.iter().take(3).sum::<u32>();
 
     println!("Answer A: {ans_a}, Answer B: {ans_b} (using the functional approach)");
 }
