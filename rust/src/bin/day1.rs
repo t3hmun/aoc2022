@@ -1,6 +1,8 @@
 fn main() {
-    let windows_data: &str = include_str!("./day1data.txt");
-    let data = windows_data.replace("\r", "");
+    let data: String = std::fs::read_to_string("../day-01-data.txt").expect("Failed to read file.");
+
+    // Alt approach, Rust lets you compile in strings:
+    //let data: &str = include_str!("./day1-data.txt");
     let elves = data.split("\n\n");
 
     let mut parsed_elves: Vec<u32> = elves
