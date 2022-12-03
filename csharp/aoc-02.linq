@@ -4,46 +4,67 @@ Directory.SetCurrentDirectory(Path.GetDirectoryName(Util.CurrentQueryPath));
 
 string[] data = File.ReadAllLines("../day-02-data.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
 
-var col1Dict = new Dictionary<char, Shape>
+var rock = new ShapeInfo(Shape.Rock, 1, Shape.Scissors, Shape.Paper);
+var paper = new ShapeInfo(Shape.Paper, 2, Shape.Rock, Shape.Scissors);
+var scissors = new ShapeInfo(Shape.Scissors, 3, Shape.Paper, Shape.Rock);
+
+var shapeMap = new Dictionary<Shape, ShapeInfo>
 {
-	{'A', Shape.Rock },
-	{'B', Shape.Paper },
-	{'C', Shape.Scissors }
-};
-var col2Dict = new Dictionary<char, Shape>
-{
-	{'X', Shape.Rock },
-	{'Y', Shape.Paper },
-	{'Z', Shape.Scissors }
+	{Shape.Rock, rock },
+	{Shape.Paper, paper },
+	{Shape.Scissors, scissors }
 };
 
-var basePoints = new Dictionary<Shape, int>
+var oppMap = new Dictionary<char, ShapeInfo>
 {
-	{ Shape.Rock, 1 },
-	{ Shape.Paper, 2 },
-	{ Shape.Scissors, 3 },
+	{'A', rock },
+	{'B', paper },
+	{'C', scissors }
 };
 
-var total = data.Select(d =>
+var youMap = new Dictionary<char, ShapeInfo>
 {
-	var opponent = col1Dict[d[0]];
-	var you = col2Dict[d[2]];
-	int outcome = basePoints[you] + CalcPoints(opponent, you);
+	{'X', rock },
+	{'Y', paper },
+	{'Z', scissors }
+};
+
+var partOne = data.Select(d =>
+{
+	var opp = oppMap[d[0]];
+	var you = youMap[d[2]];
+	int outcome = you.BasePoints + CalcPoints(opp, you);
 	return outcome;
 }).Sum();
 
-Console.WriteLine($"Part One: {total}");
-
-static int CalcPoints(Shape opp, Shape you)
+var partTwo = data.Select(d =>
 {
-	if (opp == you) return 3;
-	if (you == Shape.Rock) return opp == Shape.Paper ? 0 : 6;
-	if (you == Shape.Paper) return opp == Shape.Scissors ? 0 : 6;
-	if (you == Shape.Scissors) return opp == Shape.Rock ? 0 : 6;
-	throw new Exception("oops");
+	var opp = oppMap[d[0]];
+	var you = shapeMap[ShapeForOutcome(opp, d[2])];
+	int outcome = you.BasePoints + CalcPoints(opp, you);
+	return outcome;
+}).Sum();
+
+Console.WriteLine($"Part One: {partOne}, Part Two: {partTwo}");
+
+static int CalcPoints(ShapeInfo opp, ShapeInfo you)
+{
+	if (you.WinsAgainst == opp.Shape) return 6;
+	if (you.LosesAgainst == opp.Shape) return 0;
+	return 3;
 }
+
+static Shape ShapeForOutcome(ShapeInfo opp, char outcome)
+{
+	if (outcome == 'X') return opp.WinsAgainst;
+	if (outcome == 'Y') return opp.Shape;
+	if (outcome == 'Z') return opp.LosesAgainst;
+	throw new Exception("Invalid outcome, should be X, Y or Z.");
+}
+
 enum Shape
 {
 	Rock, Paper, Scissors
 }
 
+record ShapeInfo(Shape Shape, int BasePoints, Shape WinsAgainst, Shape LosesAgainst);
