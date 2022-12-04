@@ -20,6 +20,22 @@ data.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
 		_ => throw new Exception($"Invalid input: {b}")
 	}).Sum();
 
-	new { line, left, right, priority }.Dump();
+	//new { line, left, right, priority }.Dump();
 	return priority;
-}).Sum().Dump("Answer");
+}).Sum().Dump("Part one");
+
+
+
+var lines = data.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
+
+var groups = new List<string[]>();
+
+for (int start = 0; start < lines.Length; start += 3) {
+	int end = start + 3;
+	var group = lines[start..end];
+	var item = group[0].Where(b => group[1].Contains(b)).Where(b => group[2].Contains(b)).Distinct().Single();
+}
+
+
+
+groups.Dump();
