@@ -2,7 +2,7 @@
 
 Directory.SetCurrentDirectory(Path.GetDirectoryName(Util.CurrentQueryPath));
 
-string[] data = File.ReadAllLines("../day-03-test.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
+string[] data = File.ReadAllLines("../day-03-data.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
 
 data.Where(line => !string.IsNullOrWhiteSpace(line)).Select(line =>
 {
@@ -30,12 +30,22 @@ var lines = data.Where(line => !string.IsNullOrWhiteSpace(line)).ToArray();
 
 var groups = new List<string[]>();
 
-for (int start = 0; start < lines.Length; start += 3) {
+int sum = 0;
+
+for (int start = 0; start < lines.Length; start += 3)
+{
 	int end = start + 3;
 	var group = lines[start..end];
 	var item = group[0].Where(b => group[1].Contains(b)).Where(b => group[2].Contains(b)).Distinct().Single();
+
+	var pri = item switch
+	{
+		>= 'a' and <= 'z' => ((int)item - ('a' - 1)),
+		>= 'A' and <= 'Z' => ((int)item - ('A' - 27)),
+		_ => throw new Exception($"Invalid input: {item}")
+	};
+	
+	sum += pri;
 }
 
-
-
-groups.Dump();
+sum.Dump("Part two");
