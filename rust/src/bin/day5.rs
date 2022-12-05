@@ -23,18 +23,44 @@ impl FromStr for CrateMove {
 }
 
 fn main() {
-    let data = std::fs::read_to_string("../day-05-test.txt").unwrap();
+    let data = std::fs::read_to_string("../day-05-data.txt").unwrap();
 
     let part_one = answer_part_one(&data);
     let part_two = answer_part_two(&data);
     println!("part one: {part_one}, part two: {part_two}");
 }
 
-fn answer_part_one(data: &String) -> &str {
-    let (stacks, moves) = parse_data(data);
-    println!("{:?}", stacks);
-    println!("{:?}", moves);
-    return "todo";
+fn answer_part_one(data: &String) -> String {
+    let (mut stacks, moves) = parse_data(data);
+    for mov in moves {
+        let mut temp = Vec::new();
+        {
+            let source = &mut (stacks[mov.source - 1]);
+            for _ in 0..mov.quantity {
+                let item = source.pop().unwrap();
+                temp.push(item);
+            }
+        }
+        {
+            let target = &mut stacks[mov.target - 1];
+            for item in temp {
+                target.push(item);
+            }
+        }
+    }
+
+    // flat_map is sort of flattening the Option, only returns the ones that were successful.
+    let ans: String = stacks.iter().flat_map(|s| s.last()).collect();
+
+    // let mut ans = String::new();
+    // for stack in stacks {
+    //     if stack.len() > 0 {
+    //         let top = *stack.last().unwrap();
+    //         ans.push(top);
+    //     }
+    // }
+
+    ans
 }
 
 fn answer_part_two(_data: &String) -> &str {
@@ -73,7 +99,7 @@ fn parse_data(data: &String) -> (Vec<Vec<char>>, Vec<CrateMove>) {
             // crate is a reserved word :/
             let item = chars[idx];
             if item != ' ' {
-                stacks[i].push(item);
+                stacks[i].insert(0, item);
             }
         }
     }
@@ -81,9 +107,11 @@ fn parse_data(data: &String) -> (Vec<Vec<char>>, Vec<CrateMove>) {
     iter.by_ref().next(); // Skip the blank line.
 
     for line in iter.by_ref() {
-        let crateMove = CrateMove::from_str(line).expect("failed move parse.");
-        moves.push(crateMove);
+        let crate_move = CrateMove::from_str(line).expect("failed move parse.");
+        moves.push(crate_move);
     }
 
+    //println!("{:?}", stacks);
+    //println!("{:?}", moves);
     (stacks, moves)
 }
