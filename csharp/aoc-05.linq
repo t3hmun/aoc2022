@@ -4,7 +4,7 @@ Directory.SetCurrentDirectory(Path.GetDirectoryName(Util.CurrentQueryPath));
 
 // This doesn't look nice but it works.
 
-string[] data = File.ReadAllLines("../day-05-data.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
+string[] data = File.ReadAllLines("../day-05-test.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
 
 int stackCount = (data.First().Length + 1) / 4;
 stackCount.Dump();
@@ -34,16 +34,20 @@ for (i = 0; i < data.Length; i++)
 }
 
 
-var stacks = new Stack<char>[stackCount];
+var p1 = new Stack<char>[stackCount];
+var p2 = new Stack<char>[stackCount];
 
 for (int j = 0; j < lists.Length; j++)
 {
-	var stack = new Stack<char>();
-	stacks[j] = stack;
+	var p1Stack = new Stack<char>();
+	var p2Stack = new Stack<char>();
+	p1[j] = p1Stack;
+	p2[j] = p2Stack;
 	lists[j].Reverse();
 	foreach (var crate in lists[j])
 	{
-		stack.Push(crate);
+		p1Stack.Push(crate);
+		p2Stack.Push(crate);
 	}
 }
 
@@ -59,23 +63,41 @@ for (; i < data.Length; i++)
 	var quantity = int.Parse(match.Groups[1].Value);
 	var source = int.Parse(match.Groups[2].Value);
 	var target = int.Parse(match.Groups[3].Value);
-
+	
 	for (int j = 0; j < quantity; j++)
 	{
-		var crate = stacks[source - 1].Pop();
-		stacks[target - 1].Push(crate);
+		var crate = p1[source - 1].Pop();
+		p1[target - 1].Push(crate);
+	}
+	var popped =  new List<char>();
+	for (int j = 0; j < quantity; j++)
+	{
+		var crate = p2[source - 1].Pop();
+		popped.Add(crate);
+	}
+	popped.Reverse();
+	foreach (var crate in popped) {
+		p2[target - 1].Push(crate);
 	}
 	//stacks.Dump($"{i}");
 }
 
-var result = "";
+var ans1 = "";
 
-foreach (var s in stacks)
+foreach (var s in p1)
 {
 	var crate = s.Peek();
-	result += crate;
+	ans1 += crate;
 }
 
+var ans2 = "";
+
+foreach (var s in p2)
+{
+	var crate = s.Peek();
+	ans2 += crate;
+}
 //stacks.Dump();
 
-result.Dump("Part One");
+ans1.Dump("Part One");
+ans2.Dump("Part Two");
