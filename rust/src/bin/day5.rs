@@ -33,6 +33,7 @@ fn main() {
 fn answer_part_one(data: &String) -> String {
     let (mut stacks, moves) = parse_data(data);
     for mov in moves {
+        // Can't borrow two items from the stacks Vec at the same time, so source is put in a scope so the ref id dropped before getting target.
         let mut temp = Vec::new();
         {
             let source = &mut (stacks[mov.source - 1]);
@@ -41,30 +42,40 @@ fn answer_part_one(data: &String) -> String {
                 temp.push(item);
             }
         }
-        {
-            let target = &mut stacks[mov.target - 1];
-            for item in temp {
-                target.push(item);
-            }
+
+        let target = &mut stacks[mov.target - 1];
+        for item in temp {
+            target.push(item);
         }
     }
 
-    // flat_map is sort of flattening the Option, only returns the ones that were successful.
-    let ans: String = stacks.iter().flat_map(|s| s.last()).collect();
-
-    // let mut ans = String::new();
-    // for stack in stacks {
-    //     if stack.len() > 0 {
-    //         let top = *stack.last().unwrap();
-    //         ans.push(top);
-    //     }
-    // }
-
-    ans
+    // Option's iterator only return the Some or nothing, so flattening only returns the .last of non-empty stacks.
+    // Also collect can collect chars into a String, that's nice.
+    stacks.iter().flat_map(|s| s.last()).collect::<String>()
 }
 
-fn answer_part_two(_data: &String) -> &str {
-    return "todo";
+fn answer_part_two(data: &String) -> String {
+    let (mut stacks, moves) = parse_data(data);
+    for mov in moves {
+        // Can't borrow two items from the stacks Vec at the same time, so source is put in a scope so the ref id dropped before getting target.
+        let mut temp = Vec::new();
+        {
+            let source = &mut (stacks[mov.source - 1]);
+            for _ in 0..mov.quantity {
+                let item = source.pop().unwrap();
+                temp.push(item);
+            }
+        }
+
+        let target = &mut stacks[mov.target - 1];
+        for item in temp.iter().rev() {
+            target.push(*item);
+        }
+    }
+
+    // Option's iterator only return the Some or nothing, so flattening only returns the .last of non-empty stacks.
+    // Also collect can collect chars into a String, that's nice.
+    stacks.iter().flat_map(|s| s.last()).collect::<String>()
 }
 
 fn parse_data(data: &String) -> (Vec<Vec<char>>, Vec<CrateMove>) {
