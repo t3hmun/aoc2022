@@ -1,5 +1,7 @@
-use std::{num::ParseIntError, str::FromStr};
+use anyhow::Result;
+use std::str::FromStr;
 
+// This auto generates an implementation of the Debug trait.
 #[derive(Debug)]
 struct CrateMove {
     quantity: usize,
@@ -8,17 +10,21 @@ struct CrateMove {
 }
 
 impl FromStr for CrateMove {
-    type Err = ParseIntError;
+    type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<&str> = s.split(" ").collect();
 
-        // The ParseIntError is propagated via the magical question mark.
-        Ok(CrateMove {
-            quantity: parts[1].parse()?,
-            source: parts[3].parse()?,
-            target: parts[5].parse()?,
-        })
+        if parts.len() != 6 {
+            Err(anyhow::Error::msg("move line should have 6 words"))
+        } else {
+            // The ? propagates the ParseIntError.
+            Ok(CrateMove {
+                quantity: parts[1].parse()?,
+                source: parts[3].parse()?,
+                target: parts[5].parse()?,
+            })
+        }
     }
 }
 
