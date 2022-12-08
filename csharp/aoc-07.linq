@@ -2,14 +2,28 @@
 
 Directory.SetCurrentDirectory(Path.GetDirectoryName(Util.CurrentQueryPath)!);
 
+// this is a mess. this is aoc.
+
 string[] data = File.ReadAllLines("../day-07-data.txt").Where(f => !string.IsNullOrWhiteSpace(f)).ToArray();
 
 var tree = BuildTree();
 int partOneTotal = 0;
 
-PartOne(tree);
+int totalSpace = 70000000;
+int unusedSpaceRequired = 30000000;
+
+int totalDataSize = PartOne(tree);
 partOneTotal.Dump("Part One");
 
+int spaceNeeded = unusedSpaceRequired - (totalSpace - totalDataSize);
+
+//ew { totalDataSize, spaceNeeded }.Dump();
+
+int partTwo = totalDataSize;
+
+PartTwo(tree);
+
+partTwo.Dump("Part Two");
 
 int PartOne(Dir d)
 {
@@ -21,6 +35,20 @@ int PartOne(Dir d)
 
 	return dirTotal;
 }
+
+
+int PartTwo(Dir d)
+{
+	var below = d.Dirs.Select(sub => PartTwo(sub)).Sum();
+	var sum = d.Files.Select(f => f.size).Sum();
+	var dirTotal = below + sum;
+
+	//new { d.Name, dirTotal, a = dirTotal > spaceNeeded, b = dirTotal < partTwo }.Dump();
+	if (dirTotal > spaceNeeded && dirTotal < partTwo) partTwo = dirTotal;
+
+	return dirTotal;
+}
+
 
 
 Dir BuildTree()
