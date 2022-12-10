@@ -89,3 +89,48 @@ matrix.Dump();
 visible.Dump();
 
 var totalVisible = Enumerable.Range(0, width).SelectMany(c => Enumerable.Range(0, height).Select(r => visible[r, c])).Count(v => v == true).Dump("Anwser One");
+iterations.Dump("part one iterations");
+
+// This is for fun, not needed.
+long[,] scores = new long[width, height];
+long highScore = 0;
+int p2Iterations = 0;
+
+
+long CalcScore(int r, int c)
+{
+	bool Core(int here, ref int side, int r, int c)
+	{
+		p2Iterations++;
+		side++;
+		int there = matrix[r, c];
+		return (there >= here);
+	}
+	
+	var here = matrix[r, c];
+	// look right
+	int right = 0;
+	int left = 0;
+	int up = 0;
+	int down = 0;
+	for (int t = c + 1; t < width; t++) if (Core(here, ref right, r, t)) break;
+	for (int t = c - 1; t >= 0; t--) if (Core(here, ref left, r, t)) break;
+	for (int t = r + 1; t < height; t++) if (Core(here, ref down, t, c)) break;
+	for (int t = r - 1; t >= 0; t--) if (Core(here, ref up, t, c)) break;
+
+	return left * right * up * down;
+}
+
+for (int r = 0; r < height; r++)
+{
+	string line = lines[r];
+	for (int c = 0; c < width; c++)
+	{
+		long score = CalcScore(r, c);
+		scores[r, c] = score;
+		if (score > highScore) highScore = score;
+	}
+}
+
+p2Iterations.Dump("part two iterations");
+highScore.Dump("Part Two");
