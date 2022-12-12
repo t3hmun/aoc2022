@@ -2,6 +2,7 @@ use anyhow::Ok;
 use std::{collections::HashSet, str::FromStr};
 use vect::{vector::Vector, vector2::Vector2};
 
+// Vector2 is awful here, didn't want floats, should have made a isize point struct and implemented add and minus and diff
 fn main() {
     println!("day 9");
 
@@ -19,16 +20,18 @@ fn main() {
 
     for command in commands {
         for _ in 0..command.repeat {
+            // Head and Tail are part one
             head = head + command.movement;
             tail = tail_move(&head, tail);
-            visits_p1.insert((tail.x as i64, tail.y as i64));
+            visits_p1.insert((tail.x as isize, tail.y as isize)); // f64 does not hash (because floating point errors are a foot-gun?)
 
+            // tails[0] is the head, the rest of the vec are the tail.
             tails[0] = tails[0] + command.movement;
             for i in 1..=9 {
                 tails[i] = tail_move(&tails[i - 1], tails[i]);
             }
 
-            visits_p2.insert((tails[9].x as i64, tails[9].y as i64));
+            visits_p2.insert((tails[9].x as isize, tails[9].y as isize));
         }
     }
     println!("part one: {:?}", visits_p1.len());
@@ -47,23 +50,26 @@ impl FromStr for Command {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split(" ");
-        // unwrap every other statement is good rust.
+        // unwrap every other statement is good rust. TODO: figure out ok_or or however errors should be propagated.
         let dir = parts.next().unwrap().chars().next().unwrap();
         let amount: usize = parts.next().unwrap().parse().unwrap();
-        let v = match dir {
+
+        let direction = match dir {
             'U' => Some(Vector2::up()),
             'D' => Some(Vector2::down()),
             'L' => Some(Vector2::left()),
             'R' => Some(Vector2::right()),
             _ => None,
-        }
-        .unwrap();
+        };
 
-        Ok(Command {
-            //direction: dir,
-            movement: v,
-            repeat: amount,
-        })
+        match direction {
+            Some(val) => Ok(Command {
+                //direction: dir,
+                movement: val,
+                repeat: amount,
+            }),
+            None => Err(anyhow::Error::msg("Invalid direction.")),
+        }
     }
 }
 
