@@ -11,7 +11,6 @@ Point partOneT = new(0, 0);
 Point[] knots = Enumerable.Range(1,9).Select(n => new Point(0,0)).ToArray();
 partOneTails.Add(partOneT);
 
-
 foreach (string line in lines)
 {
 	char direction = line[0];
@@ -22,6 +21,8 @@ foreach (string line in lines)
 		
 		partOneT = MoveTail(h, partOneT);
 		partOneTails.Add(partOneT);
+		Console.WriteLine($"{direction} {h} {partOneT}");
+		
 		Point head = h;
 		for(int j = 0; j < 9; j ++)
 		{
@@ -39,10 +40,10 @@ Point MoveH(Point p, char d)
 {
 	return d switch
 	{
-		'U' => new(p.x + 1, p.y),
-		'D' => new(p.x - 1, p.y),
-		'R' => new(p.x, p.y + 1),
-		'L' => new(p.x, p.y - 1),
+		'U' => new(p.x, p.y + 1),
+		'D' => new(p.x, p.y -1),
+		'R' => new(p.x + 1, p.y),
+		'L' => new(p.x -1, p.y),
 		_ => throw new Exception($"Unknown direciton {d}")
 	};
 }
@@ -64,5 +65,7 @@ static Point MoveTail(Point h, Point t)
 		_ => t
 	};
 }
+
+
 
 record Point(int x, int y);
