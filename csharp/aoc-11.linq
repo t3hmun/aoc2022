@@ -4,7 +4,7 @@
 
 Directory.SetCurrentDirectory(Path.GetDirectoryName(Util.CurrentQueryPath)!);
 
-string data = File.ReadAllText("../day-11-test.txt").Replace("\r", "");
+string data = File.ReadAllText("../day-11-data.txt").Replace("\r", "");
 
 string[] chunks = data.Split("\n\n");
 
@@ -36,7 +36,7 @@ void PartOne()
 			{
 				monkey.Inspections++;
 
-				var worry = monkey.Op(old) / new BigInteger(3);
+				var worry = monkey.Op(old) / 3L;
 
 				if (worry % monkey.DivBy == 0)
 				{
@@ -67,6 +67,9 @@ void PartTwo()
 	{
 		var monkeys = ParseMonkeys();
 
+		// Honestly I dont entirely grok the LCM.
+		var commonMod = monkeys.Select(m => m.DivBy).Aggregate((a, c) => a * c);
+
 		for (int i = 0; i < 10000; i++)
 		{
 			foreach (var monkey in monkeys)
@@ -75,7 +78,7 @@ void PartTwo()
 				{
 					monkey.Inspections++;
 
-					var worry = monkey.Op(old);
+					var worry = monkey.Op(old) % commonMod;
 
 					if (worry % monkey.DivBy == 0)
 					{
@@ -89,10 +92,10 @@ void PartTwo()
 				monkey.Items.Clear();
 			}
 
-			if (new[] { 1, 20, 50, 100, 500, 1000, 2000 }.Contains(i + 1)) monkeys.Select(m => $"r{i + 1} {m.Inspections}").Dump();
+			//if (new[] { 1, 20, 1000, 2000, 3000, 4000, 5000, 6000, 70000, 8000, 9000, 10000 }.Contains(i + 1)) monkeys.Select(m => $"r{i + 1} {m.Inspections}").Dump();
 		}
 
-		var top2 = monkeys.OrderByDescending(m => m.Inspections).Dump().Select(m => m.Inspections).Take(2).ToArray();
+		var top2 = monkeys.OrderByDescending(m => m.Inspections).Select(m => m.Inspections).Take(2).ToArray();
 		(top2[0] * top2[1]).Dump("Part Two");
 	}
 }
@@ -119,7 +122,7 @@ BigInteger Magic(BigInteger left, BigInteger right, char sign)
 
 record Monkeys(int Num, List<BigInteger> Items, Func<BigInteger, BigInteger> Op, BigInteger DivBy, int TrueTo, int FalseTo)
 {
-	public int Inspections { get; set; } = 0;
+	public long Inspections { get; set; } = 0;
 
 	public string Pretty() => $"{Num} {Inspections,8}    {string.Join(",", Items)}";
 
