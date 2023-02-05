@@ -1,11 +1,27 @@
-use std::collections::{HashSet, VecDeque};
+use std::{
+    collections::{HashSet, VecDeque},
+    time::Instant,
+};
 
 fn main() {
     let data = std::fs::read_to_string("../day-06-data.txt").unwrap();
 
+    let orig = Instant::now();
+    for _ in 0..100 {
+        answer_part_one(&data);
+        answer_part_two(&data);
+    }
+    let orig_time = orig.elapsed();
+    println!("orig {:?}", orig_time);
+
     let part_one = answer_part_one(&data);
+    let one_good = part_one == 1356;
     let part_two = answer_part_two(&data);
-    println!("part one: {part_one}, part two: {part_two}");
+    let two_good = part_two == 2564;
+    println!(
+        "part one: {} {}, part two: {} {}",
+        part_one, one_good, part_two, two_good
+    );
 }
 
 fn answer_part_one(data: &String) -> usize {
